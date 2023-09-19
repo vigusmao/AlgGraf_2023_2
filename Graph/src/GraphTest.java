@@ -2,61 +2,59 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class GraphTest {
+public abstract class GraphTest {
 
-    private Graph adjMatrixG;
-    private Graph adjListsG;
-    private List<Graph> graphs;
+    protected static final int N = 5;
 
-    @Before
-    public void setUp() {
-        adjMatrixG = new AdjacencyMatrixGraph(5);
-        adjListsG = new AdjacencyListsGraph(5);
-
-        graphs = new ArrayList<>();
-        graphs.add(adjMatrixG);
-//        graphs.add(adjListsG);
-    }
+    public abstract Graph getGraph();
 
     @Test
     public void testGraphCreationWithVertexCount() {
-        for (Graph g : graphs) {
-            doTestGraphCreationWithVertexCount(g);
-        }
-    }
+        assertEquals(5, getGraph().getVertexCount());
+        assertEquals(0, getGraph().getEdgeCount());
 
-    private void doTestGraphCreationWithVertexCount(Graph g) {
-        assertEquals(5, g.getVertexCount());
-        assertEquals(0, g.getEdgeCount());
-
-        assertEquals("2", g.getVertex(2).getLabel());
-        assertNull(g.getVertex(198));
+        assertEquals("2", getGraph().getVertex(2).getLabel());
+        assertNull(getGraph().getVertex(198));
     }
 
     @Test
     public void testGraphCreationWithVerticesAndEdges() {
-        for (Graph g : graphs) {
-            doTestGraphCreationWithVerticesAndEdges(g);
-        }
-    }
-
-    private void doTestGraphCreationWithVerticesAndEdges(Graph g) {
-
     }
 
     @Test
     public void testAddEdge() {
-        for (Graph g : graphs) {
-            doTestAddEdge(g);
+        getGraph().addEdge(2, 4);
+        assertTrue(getGraph().hasEdge(2, 4));
+
+        try {
+            getGraph().addEdge(2, 2);
+            fail("An IllegalArgumentException must be thrown " +
+                    "if one tries to add a self-loop");
+        } catch (IllegalArgumentException e) {
+            // all good!!!
         }
     }
 
-    private void doTestAddEdge(Graph g) {
-        g.addEdge(2, 4);
-        assertTrue(g.hasEdge(2, 4));
+    @Test
+    public void testGetOutNeighbors() {
+        getGraph().addEdge(1, 2);
+        getGraph().addEdge(1, 3);
+        getGraph().addEdge(4, 1);
+        getGraph().addEdge(2, 3);
+
+        Collection<Vertex> outNeighborsOfVertex1 = getGraph().getOutNeighbors(1);
+
+        assertEquals(2, outNeighborsOfVertex1.size());
+
+        assertTrue(outNeighborsOfVertex1.contains(getGraph().getVertex(2)));
+        assertTrue(outNeighborsOfVertex1.contains(getGraph().getVertex(3)));
+
+        assertFalse(outNeighborsOfVertex1.contains(getGraph().getVertex(4)));
+        assertFalse(outNeighborsOfVertex1.contains(getGraph().getVertex(1)));
     }
 }

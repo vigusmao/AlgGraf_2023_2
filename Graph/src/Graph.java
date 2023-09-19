@@ -1,11 +1,12 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public abstract class Graph {
 
-    private int n;
+    protected int n;
 
-    private int m;
+    protected int m;
 
     List<Vertex> vertices;
 
@@ -63,10 +64,32 @@ public abstract class Graph {
         return vertices.get(id);
     }
 
-    public abstract void addEdge(int originId,
-                                 int destinationId);
+    public void addEdge(int originId,
+                        int destinationId) {
+        if (hasEdge(originId, destinationId)) {
+            return;  // this edge already exists
+        }
+
+        if (originId < 0 || originId >= this.n ||
+                destinationId < 0 || destinationId >= this.n ||
+                destinationId == originId) {
+            throw new IllegalArgumentException();
+        }
+
+        addEdgeToInternalStructures(originId, destinationId);
+    }
+
+    protected abstract void addEdgeToInternalStructures(
+            int originId, int destinationId);
 
     public abstract boolean hasEdge(int originId,
                                     int destinationId);
 
+    public abstract Collection<Vertex> getOutNeighbors(int vertexId);
+
+    protected void verifyVertexId(int vertexId) {
+        if (vertexId < 0 || vertexId >= this.n) {
+            throw new IllegalArgumentException();
+        }
+    }
 }
